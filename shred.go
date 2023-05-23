@@ -35,3 +35,8 @@ func ValidatePath(path string) error {
 	}
 	return nil
 }
+
+func Overwrite(path string) error {
+	err := os.WriteFile(path, []byte("This will work once! :-)"), 0644)
+	return err
+}
