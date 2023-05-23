@@ -8,3 +8,10 @@ func TestShouldReturnErrorIfPathInvalid(t *testing.T) {
 		t.Errorf("No error returned for invalid path")
 	}
 }
+
+func TestShouldReturnErrorIfFileDoesNotExist(t *testing.T) {
+	result, err := Shred("non-existent-file.txt")
+	if err == nil || result {
+		t.Errorf("No error returned for non-existent file")
+	}
+}

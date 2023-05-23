@@ -5,11 +5,16 @@ package shred
 import (
 	"errors"
 	"io/fs"
+	"os"
 )
 
 func Shred(path string) (bool, error) {
 	if !fs.ValidPath(path) {
 		return false, errors.New("Path is invalid")
+	}
+	_, err := os.Open(path)
+	if err != nil {
+		return false, err
 	}
 	return true, nil
 }
