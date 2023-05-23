@@ -12,32 +12,42 @@ import (
 
 const chunkSize int = 1 << 20 // using a chunk size of 1Mb as a reasonable default, this could be altered depending on use case
 
-func Shred(path string) (bool, error) {
-	err := ValidatePath(path)
+func Shred(path string) error {
+	size, err := ValidatePathAndFindSize(path)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return true, nil
+	for i := 0; i < 3; i++ {
+		err = Overwrite(path, size)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func ValidatePath(path string) error {
+func ValidatePathAndFindSize(path string) (int, error) {
 	// Validate the path leads to an existing regular file
 	if !fs.ValidPath(path) {
-		return errors.New("Specified path is invalid")
+		return 0, errors.New("Specified path is invalid")
 	}
 	file, err := os.Open(path)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	fileInfo, err := file.Stat()
 	if err != nil {
 		panic(err)
 	}
 	if fileInfo.IsDir() {
-		return errors.New("Specified file is a directory")
+		return 0, errors.New("Specified file is a directory")
 	}
-	return nil
+
+	// grab the file size and return it
+	size := int(fileInfo.Size())
+	return size, nil
 }
 
 func Overwrite(path string, size int) error {
