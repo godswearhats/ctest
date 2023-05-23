@@ -30,26 +30,69 @@ func TestShredReturnErrorIfFileIsDirectory(t *testing.T) {
 }
 
 func TestOverwriteShouldReplaceContentsOfTextFile(t *testing.T) {
-	path := "test_file_delete_me.txt"
 	expected := []byte("lorem ipsum blah blah blah")
-	err := os.WriteFile(path, expected, 0644)
-	if err != nil {
-		panic(err)
-	}
+	path := CreateTextFile(expected)
 
-	err = Overwrite(path)
+	err := Overwrite(path, len(expected))
 	if err != nil {
 		t.Errorf("Overwrite returned error when replacing text file")
 	}
 
+	AssertFileIsDifferent(path, expected, t)
+	os.Remove(path)
+}
+
+func TestOverwriteShouldReplaceContentsOfTextFileWithDifferentDataEachTime(t *testing.T) {
+	zeroth := []byte("lorem ipsum blah blah blah")
+	path := CreateTextFile(zeroth)
+
+	err := Overwrite(path, len(zeroth))
+	if err != nil {
+		t.Errorf("Overwrite returned error when replacing text file")
+	}
+
+	first := AssertFileIsDifferent(path, zeroth, t)
+
+	err = Overwrite(path, len(zeroth))
+	if err != nil {
+		t.Errorf("Overwrite returned error when replacing text file")
+	}
+
+	second := AssertFileIsDifferent(path, first, t)
+
+	err = Overwrite(path, len(zeroth))
+	if err != nil {
+		t.Errorf("Overwrite returned error when replacing text file")
+	}
+
+	third := AssertFileIsDifferent(path, second, t)
+	if SlicesEqual(third, zeroth) {
+		t.Errorf("Overwrite did not change file contents")
+	}
+
+	os.Remove(path)
+}
+
+// some helper functions to keep tests more readable
+
+func AssertFileIsDifferent(path string, expected []byte, t *testing.T) []byte {
 	actual, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
 	if SlicesEqual(expected, actual) {
-		t.Errorf("Overwrite did not change file contents")
+		t.Errorf("Overwrite did not change file contents (expected: %v actual: %v)", expected, actual)
 	}
-	os.Remove(path)
+	return actual
+}
+
+func CreateTextFile(contents []byte) string {
+	path := "test_file_delete_me.txt"
+	err := os.WriteFile(path, contents, 0644)
+	if err != nil {
+		panic(err) // keep it simple for test code, if there's an issue we should just barf
+	}
+	return path
 }
 
 // can't compare slice equality with regular '==' so rolled my own comparator
