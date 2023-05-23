@@ -2,6 +2,10 @@ package shred
 
 // Implement a Shred(path) function that will overwrite the given file (e.g. “randomfile”) 3 times with random data and delete the file afterwards. Note that the file may contain any type of data.
 
+// In a few lines briefly discuss the possible use cases for such a helper function as well as advantages and drawbacks of addressing them with this approach.
+
+// It seems like the use case here is to try to make it so deletion of a file from the filesystem is a bit more secure. Often when files are removed they are comparatively easy to restore, so overwriting them multiple times with random data makes it a bit more difficult to restore the data that was in the file originally. I imagine this will depend a lot on the storage medium that the file is actually stored on, and how the filesystem stores the data.
+
 import (
 	"errors"
 	"io/fs"
@@ -25,7 +29,7 @@ func Shred(path string) error {
 		}
 	}
 
-	return nil
+	return os.Remove(path)
 }
 
 func ValidatePathAndFindSize(path string) (int, error) {
