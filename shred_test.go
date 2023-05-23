@@ -46,6 +46,7 @@ func TestShredShouldReturnErrorIfFileIsDirectory(t *testing.T) {
 	if err == nil {
 		t.Errorf("No error returned when asked to shred directory")
 	}
+	os.Remove(path)
 }
 
 func TestOverwriteShouldReplaceContentsOfTextFile(t *testing.T) {
