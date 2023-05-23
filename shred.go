@@ -9,21 +9,29 @@ import (
 )
 
 func Shred(path string) (bool, error) {
+	err := ValidatePath(path)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func ValidatePath(path string) error {
 	// Validate the path leads to an existing regular file
 	if !fs.ValidPath(path) {
-		return false, errors.New("Specified path is invalid")
+		return errors.New("Specified path is invalid")
 	}
 	file, err := os.Open(path)
 	if err != nil {
-		return false, err
+		return err
 	}
 	fileInfo, err := file.Stat()
 	if err != nil {
 		panic(err)
 	}
 	if fileInfo.IsDir() {
-		return false, errors.New("Specified file is a directory")
+		return errors.New("Specified file is a directory")
 	}
-
-	return true, nil
+	return nil
 }
