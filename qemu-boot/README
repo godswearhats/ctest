@@ -1,0 +1,27 @@
+Run 
+
+  $ ./qemu-boot.sh
+
+It takes no arguments. You may need to `chmod +x qemu-boot.sh` first.
+
+This script will attempt to download v6.3.3 of the Linux kernel, v1.3.6 of
+Busybox, unpack and compile them with configuration files supplied in this
+project's directory. It will then build a filesystem using Busybox and cpio,
+and boot the Linux kernel with that filesystem. Finally, the supplied init
+script aims to print the required "hello world" after boot.
+
+The script has five main functions in it, and calls them sequentially. This
+makes it a bit easier to read and to test, as each function can be commented
+out if it's known to have worked.
+
+LIMITATIONS
+
+The compilation and building works, and qemu starts the kernel but it panics
+when it reaches the init script. I assume I have something misconfigured in
+either the kernel or the filesystem (or perhaps both). However, I've run into
+the time limit boundaries set for the exercise, and so submit it as is.
+
+I've assumed the script will be run on an amd64 box, to which the user has
+sudo access. Other than that, the script makes no assumptions. There may be
+packages that are prerequisites that I missed because my system already has
+them installed.
